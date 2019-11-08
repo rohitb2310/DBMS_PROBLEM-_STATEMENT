@@ -1,0 +1,309 @@
+Declare
+	s_roll student.rollno%type;
+	s_att student.attendence%type;
+
+begin
+	s_roll :=&Enter_roll_no;
+	select attendence into s_att from student where rollno=s_roll;
+	if s_att<75 then
+	dbms_output.put_line('Term not Granted');
+	update student set status='D' where rollno=s_roll;
+	else
+	dbms_output.put_line('Term Granted');
+	update student set status='ND' where rollno=s_roll;
+	end if;
+Exception
+	when no_data_found then
+	dbms_output.put_line('Data is not found');
+end;
+/
+
+Declare
+	s_roll stud.roll%type;
+	s_att stud.att%type;
+
+begin
+	s_roll :=&Enter_roll_no;
+	select att into s_att from stud where roll=s_roll;
+	if s_att<75 then
+	dbms_output.put_line('Term not granted');
+	update stud set status='D' where roll=s_roll;
+	else
+	dbms_output.put_line('Term granted');
+	update stud set status='P' where roll=s_roll;
+	end if;
+Exception
+	when no_data_found then
+	dbms_output.put_line('Data not found');
+end;
+
+
+6.2
+
+Declare
+	row_c number(3);
+begin
+	update acc1 set status='A'where status='IA';
+	dbms_output.put_line('hiii');
+	if SQL%FOUND then
+		row_c:=SQL%ROWCOUNT;
+		dbms_output.put_line(row_c||'is updated');
+	elsif SQL%NOTFOUND then
+		dbms_output.put_line(' no row is updated');
+	end if;
+end;
+/
+
+7.1
+
+declare
+	mwithdraw acc_exception.balance%type;
+	mbalance acc_exception.balance%type;
+	macc_no acc_exception.acc_no%type;
+	 RULES_VOILATED Exception ;
+
+Begin
+	macc_no:=&Enter_acc_no;
+	mwithdraw:=&Enter_amount_to_wihdraw;
+	select balance into mbalance from acc_exception  where macc_no=acc_no;
+	if mwithdraw > mbalance then
+		raise RULES_VOILATED;
+	elsif mbalance >=mwithdraw then
+	update acc_exception set balance=balance-mwithdraw where  macc_no=acc_no;
+	end if;
+Exception
+	when RULES_VOILATED then
+		dbms_output.put_line(' Exception is occured amount is not sufficient to withdraw');
+	when OTHERS then
+		dbms_output.put_line(' EROOR OCCURED');
+end;
+/
+
+
+7.2
+
+declare
+	msalary emp.salary%type;
+	memp_no emp.emp_no %type;
+	cursor c is select emp_no ,salary from emp where salary<(select avg(salary) from emp);
+begin
+	open c;
+	if c%ISOPEN then
+	loop
+	fetch c into memp_no,msalary;
+	exit when c%NOTFOUND;
+	if c%FOUND then
+		update emp set salary=msalary + 0.01*msalary where salary=msalary;
+		insert into inc_salary values(memp_no,msalary + 0.01*msalary);
+	else
+		dbms_output.put_line('no salary is greater than average salary');
+	
+	end if;
+	end loop;
+	close c;
+	end if;
+EXCEPTION	
+	WHEN INVALID_CURSOR THEN
+		DBMS_OUTPUT.PUT_LINE('attempts are made to make a cursor operation that is not allowed');
+	WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');	
+END;
+/
+
+8:::::::::::::::::::;;
+
+create or replace procedure compute(mdays in number,mroll_no in number)is
+famount number(5);
+BEGIN
+	if(mdays>15 and mdays<30) then
+	famount:=(mdays-15)*5;
+	insert into fine values(mroll_no,SYSDATE,famount);
+	elsif(mdays >30) then
+	famount:=(mdays-30)*50+75;
+	insert into fine values(mroll_no,SYSDATE,famount);
+	else
+	famount:=0;
+	end if;
+	update borrow set status='R'where mroll_no=roll_n;
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+
+
+declare 
+mroll_no number(3);
+mdoi date;
+mbook_name varchar(20);
+mdays number(3);
+
+
+Begin
+	mroll_no:= &Enter_roll_no;
+	
+	select doi into mdoi from borrow where roll_n=mroll_no;
+	mdays:=SYSDATE-mdoi;
+	compute(mdays,mroll_no);
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+
+---------------------------------------------------------------------------
+9
+-----------------------------------------------------------------------------
+Declare 
+	mroll_no stud9.roll_no%type;
+	matt stud9.att%type;
+	mstatus stud9.status%type;
+	cursor c is
+	select roll_no,att,status from stud9 where att<75;
+begin
+	open c;
+	if c%ISOPEN then
+	loop
+		Fetch c into mroll_no,matt,mstatus;
+		exit when c%NOTFOUND;
+		if c%found then
+		update stud9 set status='D'where roll_no=mroll_no;
+		insert into stud_d values(mroll_no,matt);
+		end if;
+	end loop;
+	end if;
+close c;
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+
+------------------------------------------------------------------------------------
+10.2
+-----------------------------------------------------------------------------
+
+create or replace trigger t
+after DELETE OR UPDATE on client_mstr
+for each row
+enable
+Declare
+	opt audit_trade.opt%type;
+begin
+	if UPDATING then
+	opt:='update';
+	 elsif DELETING then
+	opt:='Delete';
+	end if;
+	insert into audit_trade values(:old.emp_name,:old.salary,opt);
+end;
+/
+------------------------------------------------------------------------------
+13
+---------------------------------------------------------------------------------
+
+declare
+	macc_no account_13.acc_no%type;
+	mbranch_name account_13.branch_name%type;
+	mstatus account_13.status%type;
+begin
+	macc_no:=&Enter_acc_number;
+	select status into mstatus from account_13 where acc_no=macc_no;
+	select branch_name into mbranch_name from account_13 where acc_no=macc_no;
+	checkstatus(macc_no,mbranch_name,mstatus);
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+
+
+create or replace procedure checkstatus(macc_no number, mbranch_name varchar,mstatus varchar)is
+begin
+	if mstatus='A' then
+	dbms_output.put_line('Account:'||macc_no|| 'is active');
+	insert into active_account_13 values(macc_no,mbranch_name,mstatus);
+	else
+		dbms_output.put_line('Account:'||macc_no|| 'is NOT active');
+	end if;
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+
+--------------------------------------------------------------------------------
+11.1 same as7.1
+11.2
+-------------------------------------------------------------------------------
+create or replace trigger tt
+before
+insert or update on emp11
+FOR EACH ROW
+enable
+begin
+	if :new.e_salary<50000 then
+		RAISE_APPLICATION_ERROR(-2003,'salary cannot be less than 50000');
+	else
+		insert into track_emp values(:new.e_no,:new.e_salary);
+	end if;
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
+----------------------------------------------------------------------------------
+reverse number
+-------------------------------------------------------------------------------
+Declare 
+	num number(10);
+	snum varchar(10);
+	lnum number(10);
+	output varchar(10);
+begin
+	num:=&Enter_number;
+	lnum:=length(num);
+	snum:=to_char(num);
+
+	for i in reverse 1..lnum
+	loop
+		output:=output || substr(snum,i,1);
+	end loop;
+	dbms_output.put_line('Reverse of the number:'||output);
+Exception
+WHEN VALUE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('error occured in arithmatic operaions');
+	WHEN PROGRAM_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('internal program error occured');		
+	WHEN STORAGE_ERROR THEN
+		DBMS_OUTPUT.PUT_LINE('PL/SQL got out of memory | memory got corrupted');		
+END;
+/
